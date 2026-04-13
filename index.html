@@ -1,0 +1,197 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LeadScript v2</title>
+<style>
+*{box-sizing:border-box} :root{--a:#22d3c5;--bg:#000;--p:rgba(0,0,0,.64)}
+body{margin:0;font-family:Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--a)}
+.shell{display:grid;grid-template-columns:290px 1fr;gap:10px;min-height:100vh;padding:10px}
+.left{background:var(--p);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.menu{display:flex;flex-direction:column;gap:6px}.mi{display:flex;gap:10px;align-items:center;background:transparent;border:0;color:var(--a);padding:8px 4px;border-radius:8px;cursor:pointer;font-size:22px}.mi:hover{background:rgba(255,255,255,.08)}
+.lang{display:flex;gap:8px}.btn{padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.82);color:var(--a);cursor:pointer}.btn:hover{background:#000}.lang .btn{flex:1}.on{border-color:rgba(34,211,197,.9);background:rgba(34,211,197,.2)}
+.list{border-top:1px solid rgba(255,255,255,.2);padding-top:8px;max-height:46vh;overflow:auto}.list h4{margin:0 0 8px}
+.chat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px;margin-bottom:8px}.chat .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat small{opacity:.75}.chat .r{display:flex;gap:6px;margin-top:6px}
+.layout{display:grid;grid-template-columns:minmax(360px,42vw) 1fr;gap:12px;min-width:0}
+.panel,.card{background:var(--p);border:1px solid rgba(255,255,255,.2);border-radius:14px}
+.panel{display:flex;flex-direction:column;height:calc(100vh - 20px);overflow:hidden}
+.head{padding:14px;border-bottom:1px solid rgba(255,255,255,.2)} .head h2{margin:0}.head p{margin:4px 0 0}
+.msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}.m{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05)}.u{background:rgba(255,255,255,.1)}
+pre{margin:0;white-space:pre-wrap;word-break:break-word;color:var(--a)}
+.box{padding:12px;border-top:1px solid rgba(255,255,255,.2)}
+.main{height:calc(100vh - 20px);overflow:auto;padding-right:2px}.card{padding:16px;margin-bottom:14px}
+h1{margin:0 0 8px;font-size:44px}.sub{margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;margin:8px 0 6px}
+input,textarea,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.93);color:#17324d}
+.scripts{display:flex;flex-direction:column;gap:8px}.sitem{padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.05)}
+.flash{outline:2px solid rgba(34,211,197,.9)}
+@media (max-width:1000px){.shell{display:block}.left{display:none}.layout{display:block}.panel{height:auto;margin-bottom:12px}.main{height:auto;overflow:visible}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <aside class="left">
+    <div class="menu">
+      <button class="mi" id="newConv">✎ <span id="txNew">Новая беседа</span></button>
+      <button class="mi" id="searchConv">⌕ <span id="txSearch">Search</span></button>
+      <button class="mi" id="goGen">◌ <span id="txSkills">Навыки и приложения</span></button>
+      <button class="mi" id="goQa">◷ <span id="txAuto">Автоматизации</span></button>
+    </div>
+    <div class="lang"><button class="btn on" id="en">EN</button><button class="btn" id="ru">RU</button></div>
+    <div class="list"><h4 id="txConvs">Беседы</h4><div id="convList"></div></div>
+  </aside>
+
+  <section class="layout">
+    <aside class="panel">
+      <div class="head"><h2>AliceAI</h2><p id="txAssist">Built-in AI assistant</p></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="box">
+        <textarea id="q" rows="3" placeholder="Ask AliceAI..."></textarea>
+        <button class="btn" id="send">Send</button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <h1 id="txTitle">LeadScript</h1>
+      <p class="sub" id="txSub">Turn a short idea into posts, Reels, TikTok and video scripts.</p>
+      <section class="card"><h3 id="txLatest">Latest AliceAI Response</h3><pre id="latest"></pre></section>
+
+      <form class="card" id="genForm">
+        <label id="txIdea">Idea</label><textarea id="idea" rows="3"></textarea>
+        <div class="grid">
+          <div><label id="txMode">Mode</label><select id="mode"><option>default</option><option>tiktok</option><option>ads</option><option>film</option></select></div>
+          <div><label id="txSubmode">Submode</label><select id="submode"><option>universal</option><option>expert</option><option>sales</option></select></div>
+        </div>
+        <label id="txNiche">Niche</label><input id="niche" value="expert blog" />
+        <label id="txAudience">Audience</label><input id="audience" value="entrepreneurs 25-40" />
+        <label id="txTone">Tone</label><input id="tone" value="friendly and confident" />
+        <label id="txGoal">Goal</label><input id="goal" value="get more leads" />
+        <button class="btn" type="submit" id="txGen">Generate</button>
+      </form>
+
+      <section class="card"><h3 id="txResult">Result</h3><pre id="result"></pre></section>
+      <section class="card">
+        <div style="display:flex;gap:8px;align-items:center"><h3 id="txSavedScripts" style="margin:0">Saved Scripts</h3><button class="btn" type="button" id="saveScript">Save Script</button></div>
+        <div id="scripts" class="scripts"></div>
+      </section>
+
+      <form class="card" id="qaForm">
+        <h3 id="txQa">Script QA & Budget</h3>
+        <label id="txAnalysis">Analysis Type</label>
+        <select id="atype"><option value="platform_check">Platform compliance check</option><option value="budget_estimate">Scene budget estimate</option></select>
+        <div class="grid"><div><label id="txPlatform">Target Platform</label><input id="platform" value="Netflix" /></div><div><label id="txBudget">Budget Level</label><select id="budget"><option>low</option><option selected>mid</option><option>high</option></select></div></div>
+        <label id="txScriptText">Script Text / Scene Draft</label><textarea id="script" rows="8"></textarea>
+        <button class="btn" type="submit" id="txRun">Run Analysis</button>
+      </form>
+      <section class="card"><h3 id="txAnalysisResult">Script Analysis</h3><pre id="analysis"></pre></section>
+    </section>
+  </section>
+</main>
+
+<script>
+const T={en:{new:'New conversation',search:'Search',skills:'Skills & Apps',auto:'Automations',convs:'Conversations',assist:'Built-in AI assistant',title:'LeadScript',sub:'Turn a short idea into posts, Reels, TikTok and video scripts.',latest:'Latest AliceAI Response',idea:'Idea',mode:'Mode',submode:'Submode',niche:'Niche',audience:'Audience',tone:'Tone',goal:'Goal',gen:'Generate',result:'Result',savedScripts:'Saved Scripts',saveScript:'Save Script',emptyScripts:'No saved scripts yet.',qa:'Script QA & Budget',analysis:'Analysis Type',platform:'Target Platform',budget:'Budget Level',script:'Script Text / Scene Draft',run:'Run Analysis',analysisRes:'Script Analysis',platformCheck:'Platform compliance check',budgetEstimate:'Scene budget estimate',load:'Load',del:'Delete'},ru:{new:'Новая беседа',search:'Search',skills:'Навыки и приложения',auto:'Автоматизации',convs:'Беседы',assist:'Встроенный AI ассистент',title:'LeadScript',sub:'Преобразуй идею в посты, Reels, TikTok и видео-сценарии.',latest:'Последний ответ AliceAI',idea:'Идея',mode:'Режим',submode:'Подрежим',niche:'Ниша',audience:'Аудитория',tone:'Тон',goal:'Цель',gen:'Сгенерировать',result:'Результат',savedScripts:'Сохраненные сценарии',saveScript:'Сохранить сценарий',emptyScripts:'Сценарии пока не сохранены.',qa:'Проверка сценария и бюджет',analysis:'Тип анализа',platform:'Целевая платформа',budget:'Уровень бюджета',script:'Текст сценария / сцены',run:'Запустить анализ',analysisRes:'Анализ сценария',platformCheck:'Проверка соответствия платформе',budgetEstimate:'Оценка бюджета сцены',load:'Открыть',del:'Удалить'}};
+const q=id=>document.getElementById(id);
+let lang=localStorage.getItem('ls2_lang')||'en';
+let chats=JSON.parse(localStorage.getItem('ls2_chats')||'[]');
+let scripts=JSON.parse(localStorage.getItem('ls2_scripts')||'[]');
+let live=JSON.parse(localStorage.getItem('ls2_live')||'[]');
+let cur=localStorage.getItem('ls2_cur')||'';
+if(!live.length) live=[{role:'ai',content:lang==='ru'?'Спроси меня про сценарии, хуки и контент-план.':'Ask me about hooks, scripts, and content plans.'}];
+function persist(){localStorage.setItem('ls2_lang',lang);localStorage.setItem('ls2_chats',JSON.stringify(chats));localStorage.setItem('ls2_scripts',JSON.stringify(scripts));localStorage.setItem('ls2_live',JSON.stringify(live));localStorage.setItem('ls2_cur',cur||'');}
+function flash(el){if(!el)return;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),700)}
+function rt(){const t=T[lang];q('txNew').textContent=t.new;q('txSearch').textContent=t.search;q('txSkills').textContent=t.skills;q('txAuto').textContent=t.auto;q('txConvs').textContent=t.convs;q('txAssist').textContent=t.assist;q('txTitle').textContent=t.title;q('txSub').textContent=t.sub;q('txLatest').textContent=t.latest;q('txIdea').textContent=t.idea;q('txMode').textContent=t.mode;q('txSubmode').textContent=t.submode;q('txNiche').textContent=t.niche;q('txAudience').textContent=t.audience;q('txTone').textContent=t.tone;q('txGoal').textContent=t.goal;q('txGen').textContent=t.gen;q('txResult').textContent=t.result;q('txSavedScripts').textContent=t.savedScripts;q('saveScript').textContent=t.saveScript;q('txQa').textContent=t.qa;q('txAnalysis').textContent=t.analysis;q('txPlatform').textContent=t.platform;q('txBudget').textContent=t.budget;q('txScriptText').textContent=t.script;q('txRun').textContent=t.run;q('txAnalysisResult').textContent=t.analysisRes;q('atype').options[0].textContent=t.platformCheck;q('atype').options[1].textContent=t.budgetEstimate;q('en').classList.toggle('on',lang==='en');q('ru').classList.toggle('on',lang==='ru');}
+function rm(){const b=q('msgs');b.innerHTML='';live.forEach(m=>{const d=document.createElement('div');d.className='m '+(m.role==='user'?'u':'');d.innerHTML='<small>'+(m.role==='user'?'You':'AliceAI')+'</small><pre>'+m.content.replace(/</g,'&lt;')+'</pre>';b.appendChild(d)});b.scrollTop=b.scrollHeight;const last=[...live].reverse().find(x=>x.role==='ai');q('latest').textContent=last?last.content:'';}
+function rconv(){const w=q('convList');w.innerHTML='';chats.slice(0,20).forEach(c=>{const d=document.createElement('div');d.className='chat';d.innerHTML='<div class="t">'+(c.title||'Alice chat').replace(/</g,'&lt;')+'</div><small>'+c.created_at+'</small>';const r=document.createElement('div');r.className='r';const o=document.createElement('button');o.className='btn';o.textContent=T[lang].load;o.onclick=()=>{live=c.messages;cur=c.id;render()};const del=document.createElement('button');del.className='btn';del.textContent=T[lang].del;del.onclick=()=>{chats=chats.filter(x=>x.id!==c.id);if(cur===c.id){cur='';live=[{role:'ai',content:lang==='ru'?'Спроси меня про сценарии, хуки и контент-план.':'Ask me about hooks, scripts, and content plans.'}]};render()};r.appendChild(o);r.appendChild(del);d.appendChild(r);w.appendChild(d);});}
+function rscripts(){const w=q('scripts');w.innerHTML='';if(!scripts.length){const p=document.createElement('p');p.textContent=T[lang].emptyScripts;w.appendChild(p);return;}scripts.slice(0,30).forEach(s=>{const d=document.createElement('div');d.className='sitem';d.innerHTML='<div>'+s.title.replace(/</g,'&lt;')+'</div><small>'+s.created_at+'</small>';const r=document.createElement('div');r.className='r';const o=document.createElement('button');o.className='btn';o.textContent=T[lang].load;o.onclick=()=>{q('result').textContent=s.content;q('result').scrollIntoView({behavior:'smooth'});flash(q('result'))};const del=document.createElement('button');del.className='btn';del.textContent=T[lang].del;del.onclick=()=>{scripts=scripts.filter(x=>x.id!==s.id);render()};r.appendChild(o);r.appendChild(del);d.appendChild(r);w.appendChild(d);});}
+function autosaveChat(){if(live.length<2)return;const first=(live.find(x=>x.role==='user')||{content:'Alice chat'}).content.slice(0,60);const now=new Date().toLocaleString();if(cur){const i=chats.findIndex(x=>x.id===cur);if(i>=0){chats[i]={...chats[i],title:first,created_at:now,messages:JSON.parse(JSON.stringify(live))};const it=chats.splice(i,1)[0];chats.unshift(it);return;}}cur=crypto.randomUUID();chats.unshift({id:cur,title:first,created_at:now,messages:JSON.parse(JSON.stringify(live))});}
+function gen(){const idea=q('idea').value.trim()|| (lang==='ru'?'Идея не указана':'No idea provided');q('result').textContent=lang==='ru'?`## Сценарий (${q('mode').value}/${q('submode').value})\n\n1. Хук: ${idea}.\n2. Проблема: ${q('audience').value}.\n3. Решение: ${q('niche').value}.\n4. Тон: ${q('tone').value}.\n5. Цель: ${q('goal').value}.\n6. CTA: Напишите ключевое слово.`:`## Script (${q('mode').value}/${q('submode').value})\n\n1. Hook: ${idea}.\n2. Pain: ${q('audience').value}.\n3. Solution: ${q('niche').value}.\n4. Tone: ${q('tone').value}.\n5. Goal: ${q('goal').value}.\n6. CTA: Comment your keyword.`;}
+const PLATFORM_RULES={
+  netflix:{label:'Netflix',minWords:220,required:[/character|герой|персонаж/iu,/conflict|конфликт|проблем/iu,/arc|развит|изменени/iu],preferred:[/subtext|подтекст/iu,/twist|поворот/iu,/visual|визуал|кадр/iu]},
+  youtube:{label:'YouTube',minWords:90,required:[/hook|хук|вниман/iu,/cta|подпиш|лайк|коммент|призыв/iu],preferred:[/pattern interrupt|удержан|ритм/iu,/story|истори|история/iu]},
+  tiktok:{label:'TikTok',minWords:55,required:[/hook|хук|стоп|смотри/iu,/cta|коммент|подпис|призыв/iu],preferred:[/trend|тренд/iu,/fast|быстр|cut|монтаж/iu]},
+  kion:{label:'Kion',minWords:180,required:[/конфликт|problem|pain/iu,/герой|character/iu],preferred:[/жанр|genre/iu,/поворот|twist/iu]},
+  start:{label:'Start',minWords:180,required:[/герой|character/iu,/цель|goal/iu],preferred:[/диалог|dialog/iu,/эмоци|emotion/iu]}
+};
+function sceneSplit(txt){
+  const lines=txt.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const marked=[];
+  let cur=[];
+  for(const ln of lines){
+    if(/^(scene|сцена)\b|^(INT\.|EXT\.)/i.test(ln) && cur.length){marked.push(cur.join('\n'));cur=[ln];}
+    else cur.push(ln);
+  }
+  if(cur.length) marked.push(cur.join('\n'));
+  if(marked.length>=2) return marked;
+  const chunks=[];
+  for(let i=0;i<lines.length;i+=4) chunks.push(lines.slice(i,i+4).join('\n'));
+  return chunks.filter(Boolean);
+}
+function qa(){
+  const txt=q('script').value.trim();
+  if(!txt){q('analysis').textContent=lang==='ru'?'Вставь текст сценария для анализа.':'Paste script text for analysis.';return;}
+  const words=txt.split(/\s+/).filter(Boolean).length;
+  const lines=txt.split(/\n/).filter(x=>x.trim()).length;
+
+  if(q('atype').value==='budget_estimate'){
+    const lvl=q('budget').value;
+    const base=lvl==='low'?120:lvl==='mid'?280:520;
+    const scenes=sceneSplit(txt);
+    const hard=/crowd|mass|explosion|vfx|stunt|chase|battle|толпа|взрыв|погоня|трюк|массовка/iu;
+    const med=/night|rain|car|location|дожд|ноч|машин|локаци/iu;
+    let total=0;
+    const rows=[];
+    scenes.forEach((s,i)=>{
+      let k=1;
+      if(hard.test(s)) k=1.8;
+      else if(med.test(s)) k=1.35;
+      const cost=Math.round(base*k);
+      total+=cost;
+      const tag=k>1.5?(lang==='ru'?'высокая':'high'):k>1.2?(lang==='ru'?'средняя':'medium'):(lang==='ru'?'низкая':'low');
+      rows.push(`${i+1}. ${lang==='ru'?'Сцена':'Scene'} — ${cost} (${tag})`);
+    });
+    q('analysis').textContent=lang==='ru'
+      ? `Оценка бюджета сцен\n\nСцен: ${scenes.length}\nУровень: ${lvl}\nБаза за сцену: ${base}\nИтог: ~${total}\n\nДетализация:\n${rows.join('\n')}\n\nРекомендации:\n- Сгруппируй сцены по локациям.\n- Упростить массовые сцены и VFX.\n- Оставить 1 ключевую дорогую сцену.`
+      : `Scene budget estimate\n\nScenes: ${scenes.length}\nLevel: ${lvl}\nBase per scene: ${base}\nTotal: ~${total}\n\nBreakdown:\n${rows.join('\n')}\n\nRecommendations:\n- Group scenes by location.\n- Simplify crowd/VFX moments.\n- Keep one premium hero scene.`;
+    return;
+  }
+
+  const raw=(q('platform').value||'Netflix').trim();
+  const key=raw.toLowerCase();
+  const rule=PLATFORM_RULES[key]||PLATFORM_RULES['netflix'];
+  const req=rule.required.map(r=>r.test(txt));
+  const pref=rule.preferred.map(r=>r.test(txt));
+  const reqPass=req.filter(Boolean).length;
+  const prefPass=pref.filter(Boolean).length;
+  const reqScore=Math.round((reqPass/Math.max(1,rule.required.length))*70);
+  const prefScore=Math.round((prefPass/Math.max(1,rule.preferred.length))*30);
+  let score=reqScore+prefScore;
+  if(words<rule.minWords) score=Math.max(0,score-15);
+  const verdict=score>=80?(lang==='ru'?'Хорошо подходит':'Good fit'):score>=60?(lang==='ru'?'Нужно доработать':'Needs revision'):(lang==='ru'?'Слабое соответствие':'Weak match');
+
+  const misses=[];
+  req.forEach((ok,i)=>{if(!ok) misses.push(`${lang==='ru'?'Обязательный пункт':'Required check'} #${i+1}`);});
+  pref.forEach((ok,i)=>{if(!ok) misses.push(`${lang==='ru'?'Желательный пункт':'Preferred check'} #${i+1}`);});
+  if(!misses.length) misses.push(lang==='ru'?'Критичных пропусков нет.':'No critical misses.');
+
+  q('analysis').textContent=lang==='ru'
+    ? `Проверка под платформу: ${raw} (профиль: ${rule.label})\n\nСлов: ${words} (минимум: ${rule.minWords})\nСтрок: ${lines}\nСкоринг: ${score}/100\nВердикт: ${verdict}\n\nЧто улучшить:\n- ${misses.join('\n- ')}`
+    : `Platform compliance check: ${raw} (profile: ${rule.label})\n\nWords: ${words} (min: ${rule.minWords})\nLines: ${lines}\nScore: ${score}/100\nVerdict: ${verdict}\n\nImprove next:\n- ${misses.join('\n- ')}`;
+}
+function aliceAnswer(v){return lang==='ru'?`Отличный запрос: "${v}".\n1) Сформулируй 1 цель.\n2) Сильный хук в первые 2 секунды.\n3) Заверши одним CTA.`:`Great request: "${v}".\n1) One clear outcome.\n2) Strong hook in first 2 seconds.\n3) End with one CTA.`}
+function render(){rt();rm();rconv();rscripts();persist();}
+q('send').onclick=()=>{const v=q('q').value.trim();if(!v)return;live.push({role:'user',content:v});live.push({role:'ai',content:aliceAnswer(v)});q('q').value='';autosaveChat();render();};
+q('genForm').onsubmit=(e)=>{e.preventDefault();gen();};
+q('qaForm').onsubmit=(e)=>{e.preventDefault();qa();};
+q('saveScript').onclick=()=>{const c=(q('result').textContent||'').trim();if(!c)return;const title=(q('idea').value.trim()||'Script').slice(0,60);scripts.unshift({id:crypto.randomUUID(),title,created_at:new Date().toLocaleString(),content:c});render();};
+q('newConv').onclick=()=>{live=[{role:'ai',content:lang==='ru'?'Спроси меня про сценарии, хуки и контент-план.':'Ask me about hooks, scripts, and content plans.'}];cur='';render();};
+q('searchConv').onclick=()=>{q('convList').scrollIntoView({behavior:'smooth'});flash(q('convList'));};
+q('goGen').onclick=()=>{q('genForm').scrollIntoView({behavior:'smooth'});flash(q('genForm'));};
+q('goQa').onclick=()=>{q('qaForm').scrollIntoView({behavior:'smooth'});flash(q('qaForm'));};
+q('en').onclick=()=>{lang='en';render();}; q('ru').onclick=()=>{lang='ru';render();};
+render();
+</script>
+</body>
+</html>
+

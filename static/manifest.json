@@ -1,0 +1,11 @@
+﻿{
+  "name": "LeadScript",
+  "short_name": "LeadScript",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00e6ef",
+  "icons": [
+    { "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

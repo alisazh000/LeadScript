@@ -1,0 +1,26 @@
+﻿# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Node
+node_modules/
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Runtime/data
+*.log
+leadscript.db
+cloudflared.*.log
+lt.*.log
+
+# Test artifacts
+e2e-artifacts/
+
+# OS/editor
+.DS_Store
+Thumbs.db

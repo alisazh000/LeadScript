@@ -1,0 +1,207 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LeadScript</title>
+  <link rel="manifest" href="/static/manifest.json" />
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  <div id="app" class="layout">
+    <aside class="sidebar">
+      <div class="brand">LeadScript</div>
+      <div class="side-actions">
+        <button id="newProjectBtn" class="side-btn">New conversation</button>
+        <button id="searchBtn" class="side-btn secondary">Search</button>
+        <button id="skillsBtn" class="side-btn secondary">Skills & Apps</button>
+        <button id="autoBtn" class="side-btn secondary">Automations</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">Projects</div>
+      <div id="projectList" class="list"></div>
+
+      <div class="section-title">Saved Scripts</div>
+      <div id="savedScriptsNav" class="list"></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="left">
+          <h1 id="projectTitle">LeadScript Workspace</h1>
+          <span id="autosaveBadge" class="badge">Autosave on</span>
+        </div>
+        <div class="right">
+          <a id="downloadWinBtn" class="btn" href="/download/LeadScript.exe">Download Windows App</a>
+          <button id="langBtn" class="btn">RU</button>
+          <a class="btn ghost" href="/privacy">Privacy</a>
+          <a class="btn ghost" href="/terms">Terms</a>
+          <button id="logoutBtn" class="btn ghost">Logout</button>
+        </div>
+      </header>
+
+      <section id="onboarding" class="panel onboarding hidden">
+        <h2>Before publishing</h2>
+        <ol>
+          <li>Create your first project.</li>
+          <li>Generate a script and save version history.</li>
+          <li>Run platform QA and budget estimate.</li>
+        </ol>
+        <button id="closeOnboarding" class="btn">Got it</button>
+      </section>
+
+      <div class="grid-2">
+        <section class="panel">
+          <h2>AliceAI</h2>
+          <p class="sub">Built-in AI assistant</p>
+          <div id="chatMessages" class="chat-box"></div>
+
+          <div class="chat-controls">
+            <label>Style
+              <select id="styleSel"><option>balanced</option><option>direct</option><option>cinematic</option></select>
+            </label>
+            <label>Detail
+              <select id="detailSel"><option>standard</option><option>deep</option><option>brief</option></select>
+            </label>
+            <label>Focus
+              <select id="focusSel"><option>content</option><option>sales</option><option>story</option></select>
+            </label>
+            <label>Creativity
+              <select id="creativeSel"><option>medium</option><option>high</option><option>experimental</option></select>
+            </label>
+          </div>
+
+          <details id="aiAdvancedPanel" class="ai-advanced hidden">
+            <summary>AliceAI Settings (ChatGPT-style)</summary>
+            <div class="ai-advanced-grid">
+              <label>Model
+                <select id="modelSel">
+                  <option value="gpt-5.3-codex" selected>AliceAI</option>
+                </select>
+              </label>
+              <label>Response Mode
+                <select id="respModeSel">
+                  <option value="concise">concise</option>
+                  <option value="normal" selected>normal</option>
+                  <option value="deep">deep</option>
+                </select>
+              </label>
+              <label>Temperature
+                <input id="tempInp" type="number" min="0" max="2" step="0.1" value="0.7" />
+              </label>
+              <label>Max Tokens
+                <input id="maxTokInp" type="number" min="80" max="1500" step="10" value="350" />
+              </label>
+              <label class="check-row"><input id="memoryChk" type="checkbox" checked />Memory On</label>
+              <label>Memory Window (messages)
+                <input id="memoryWinInp" type="number" min="2" max="30" step="1" value="8" />
+              </label>
+              <label class="full">System Instruction
+                <textarea id="sysPromptInp" rows="2" placeholder="You are AliceAI. Be practical and concise."></textarea>
+              </label>
+            </div>
+          </details>
+
+          <textarea id="chatInput" rows="3" placeholder="Ask AliceAI..."></textarea>
+          <div class="row gap">
+            <button id="sendBtn" class="btn">Send</button>
+            <button id="saveChatBtn" class="btn ghost">Save Chat Snapshot</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Script Generator</h2>
+          <p class="sub">Ads, TikTok, film pitches, platform-ready drafts.</p>
+
+          <form id="generateForm">
+            <label>Idea<textarea id="ideaInput" rows="3" placeholder="e.g. ad concept for coffee app"></textarea></label>
+            <div class="row-2">
+              <label>Language
+                <select id="languageSel"><option value="en">English</option><option value="ru">Русский</option></select>
+              </label>
+              <label>Mode
+                <select id="modeSel"><option>default</option><option>tiktok</option><option>ads</option><option>film</option><option>business</option><option>gamedev</option><option>programming</option></select>
+              </label>
+            </div>
+            <div class="row-2">
+              <label>Submode
+                <select id="submodeSel"><option>universal</option><option>expert</option><option>sales</option></select>
+              </label>
+              <label>Target platform
+                <input id="platformSel" value="TikTok" />
+              </label>
+            </div>
+            <label>Niche<input id="nicheInput" value="expert blog" /></label>
+            <label>Audience<input id="audInput" value="entrepreneurs 25-40" /></label>
+            <label>Tone<input id="toneInput" value="friendly and confident" /></label>
+            <label>Goal<input id="goalInput" value="get more leads" /></label>
+            <div class="row gap">
+              <button class="btn" type="submit">Generate</button>
+              <button class="btn ghost" id="ideasBtn" type="button">Suggest Ideas</button>
+              <button class="btn ghost" id="saveScriptBtn" type="button">Save Script</button>
+            </div>
+          </form>
+
+          <h3>Result</h3>
+          <pre id="scriptResult" class="output"></pre>
+        </section>
+      </div>
+
+      <section class="panel qa-panel">
+        <h2>Script QA and Budget</h2>
+        <form id="qaForm">
+          <div class="row-3">
+            <label>Analysis
+              <select id="analysisType"><option value="platform_check">Platform compliance</option><option value="budget_estimate">Scene budget</option></select>
+            </label>
+            <label>Platform
+              <input id="qaPlatform" value="Netflix" />
+            </label>
+            <label>Budget level
+              <select id="budgetLevel"><option>low</option><option selected>mid</option><option>high</option></select>
+            </label>
+          </div>
+          <div class="row-3">
+            <label>Region
+              <select id="regionSel"><option>US</option><option>EU</option><option>CIS</option><option>LATAM</option></select>
+            </label>
+            <label>Export format
+              <select id="exportFmt"><option>txt</option><option>md</option><option>pdf</option><option>docx</option></select>
+            </label>
+            <div class="spacer"></div>
+          </div>
+          <label>Script text<textarea id="qaScriptText" rows="7"></textarea></label>
+          <div class="row gap">
+            <button class="btn" type="submit">Run Analysis</button>
+            <button class="btn ghost" id="exportBtn" type="button">Export Selected Script</button>
+          </div>
+        </form>
+        <pre id="qaOutput" class="output"></pre>
+      </section>
+    </main>
+  </div>
+
+  <div id="authModal" class="modal">
+    <div class="modal-card">
+      <h2>Welcome to LeadScript</h2>
+      <p class="sub">Sign in to keep chats and scripts in secure cloud storage.</p>
+      <form id="authForm" class="auth-form">
+        <input id="nameField" placeholder="Name" />
+        <input id="emailField" type="email" placeholder="Email" required />
+        <input id="passwordField" type="password" placeholder="Password (min 8)" required />
+        <div class="row gap">
+          <button id="loginBtn" type="button" class="btn">Login</button>
+          <button id="registerBtn" type="button" class="btn ghost">Register</button>
+        </div>
+        <button id="guestBtn" type="button" class="btn ghost">Continue as Guest</button>
+      </form>
+      <p id="authStatus" class="sub"></p>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
