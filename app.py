@@ -96,6 +96,19 @@ def create_app() -> Flask:
                         arc = os.path.relpath(p, BASE_DIR)
                         zf.write(p, arcname=arc)
 
+            run_bat = (
+                "@echo off\r\n"
+                "cd /d %~dp0\r\n"
+                "if not exist .venv (\r\n"
+                "  py -m venv .venv\r\n"
+                ")\r\n"
+                "call .venv\\Scripts\\activate\r\n"
+                "python -m pip install --upgrade pip\r\n"
+                "pip install -r requirements.txt\r\n"
+                "python app.py\r\n"
+            )
+            zf.writestr("run_leadscript.bat", run_bat)
+
         buf.seek(0)
         return send_file(
             buf,
