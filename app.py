@@ -108,7 +108,52 @@ def create_app() -> Flask:
     def download_windows_exe():
         exe_path = os.path.join(BASE_DIR, "dist", "LeadScript.exe")
         if not os.path.isfile(exe_path):
-            return jsonify({"error": "Windows build not found"}), 404
+            # Render/Linux deploys usually do not contain the Windows executable.
+            # Return a portable Windows package instead of a hard 404.
+            buf = io.BytesIO()
+            with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+                include_files = [
+                    "app.py",
+                    "requirements.txt",
+                    "README.md",
+                    ".env.example",
+                    "Dockerfile",
+                ]
+                for rel in include_files:
+                    abs_path = os.path.join(BASE_DIR, rel)
+                    if os.path.isfile(abs_path):
+                        zf.write(abs_path, arcname=rel)
+
+                for folder in ("templates", "static"):
+                    folder_path = os.path.join(BASE_DIR, folder)
+                    if not os.path.isdir(folder_path):
+                        continue
+                    for root, _dirs, files in os.walk(folder_path):
+                        for name in files:
+                            p = os.path.join(root, name)
+                            arc = os.path.relpath(p, BASE_DIR)
+                            zf.write(p, arcname=arc)
+
+                run_bat = (
+                    "@echo off\r\n"
+                    "cd /d %~dp0\r\n"
+                    "if not exist .venv (\r\n"
+                    "  py -m venv .venv\r\n"
+                    ")\r\n"
+                    "call .venv\\Scripts\\activate\r\n"
+                    "python -m pip install --upgrade pip\r\n"
+                    "pip install -r requirements.txt\r\n"
+                    "python app.py\r\n"
+                )
+                zf.writestr("run_leadscript.bat", run_bat)
+
+            buf.seek(0)
+            return send_file(
+                buf,
+                as_attachment=True,
+                download_name="LeadScript_Windows_Package.zip",
+                mimetype="application/zip",
+            )
         return send_file(
             exe_path,
             as_attachment=True,
