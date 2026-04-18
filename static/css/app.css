@@ -104,7 +104,7 @@ body {
 .onboarding { background: var(--panel-2); }
 .hidden { display: none !important; }
 .sub { color: var(--muted); margin: 6px 0 10px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .chat-box {
   border: 1px solid var(--line);
   border-radius: 10px;

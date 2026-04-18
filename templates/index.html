@@ -55,8 +55,43 @@
 
       <div class="grid-2">
         <section class="panel">
-          <h2 id="aliceTitle">AliceAI Assistant</h2>
-          <p id="aliceSub" class="sub">Built-in AI assistant</p>
+          <h2 id="generatorTitle">Script Generator</h2>
+          <p id="generatorSub" class="sub">Ads, TikTok, film pitches, platform-ready drafts.</p>
+
+          <form id="generateForm">
+            <label id="labelIdea">Idea<textarea id="ideaInput" rows="3" placeholder="e.g. ad concept for coffee app"></textarea></label>
+            <div class="row-2">
+              <label id="labelLanguage">
+                <select id="languageSel"><option value="en">English</option><option value="ru">Русский</option></select>
+              </label>
+              <label id="labelMode">
+                <select id="modeSel"><option>default</option><option>tiktok</option><option>ads</option><option>film</option><option>business</option><option>gamedev</option><option>programming</option></select>
+              </label>
+            </div>
+            <div class="row-2">
+              <label id="labelSubmode">Submode
+                <select id="submodeSel"><option>universal</option><option>expert</option><option>sales</option></select>
+              </label>
+              <label id="labelTargetPlatform">Target platform
+                <input id="platformSel" value="TikTok" />
+              </label>
+            </div>
+            <label id="labelNiche">Niche<input id="nicheInput" value="expert blog" /></label>
+            <label id="labelAudience">Audience<input id="audInput" value="entrepreneurs 25-40" /></label>
+            <label id="labelTone">Tone<input id="toneInput" value="friendly and confident" /></label>
+            <label id="labelGoal">Goal<input id="goalInput" value="get more leads" /></label>
+            <div class="row gap">
+              <button class="btn" type="submit">Generate</button>
+              <button class="btn ghost" id="ideasBtn" type="button">Suggest Ideas</button>
+              <button class="btn ghost" id="saveScriptBtn" type="button">Save Script</button>
+            </div>
+          </form>
+
+          <h3 id="resultTitle">Result</h3>
+          <pre id="scriptResult" class="output"></pre>
+
+          <h3 id="aliceTitle">AliceAI Assistant</h3>
+          <p id="aliceSub" class="sub">Built-in AI assistant (integrated in Script Generator)</p>
           <div id="chatMessages" class="chat-box"></div>
 
           <div class="chat-controls">
@@ -107,7 +142,7 @@
                 <input id="tempInp" type="number" min="0" max="2" step="0.1" value="0.7" />
               </label>
               <label id="labelMaxTokens">Max Tokens
-                <input id="maxTokInp" type="number" min="80" max="1500" step="10" value="350" />
+                <input id="maxTokInp" type="number" min="80" max="3000" step="10" value="900" />
               </label>
               <label id="labelMemoryOn" class="check-row"><input id="memoryChk" type="checkbox" checked />Memory On</label>
               <label id="labelMemoryWindow">Memory Window (messages)
@@ -119,48 +154,11 @@
             </div>
           </details>
 
-          <textarea id="chatInput" rows="3" placeholder="Ask AliceAI..."></textarea>
+          <textarea id="chatInput" rows="3" placeholder="Ask about your script or content goal..."></textarea>
           <div class="row gap">
-            <button id="sendBtn" class="btn">Send</button>
-            <button id="saveChatBtn" class="btn ghost">Save Chat Snapshot</button>
+            <button id="sendBtn" class="btn">Ask AI</button>
+            <button id="saveChatBtn" class="btn ghost">Quick Plan</button>
           </div>
-        </section>
-
-        <section class="panel">
-          <h2 id="generatorTitle">Script Generator</h2>
-          <p id="generatorSub" class="sub">Ads, TikTok, film pitches, platform-ready drafts.</p>
-
-          <form id="generateForm">
-            <label id="labelIdea">Idea<textarea id="ideaInput" rows="3" placeholder="e.g. ad concept for coffee app"></textarea></label>
-            <div class="row-2">
-              <label id="labelLanguage">
-                <select id="languageSel"><option value="en">English</option><option value="ru">Русский</option></select>
-              </label>
-              <label id="labelMode">
-                <select id="modeSel"><option>default</option><option>tiktok</option><option>ads</option><option>film</option><option>business</option><option>gamedev</option><option>programming</option></select>
-              </label>
-            </div>
-            <div class="row-2">
-              <label id="labelSubmode">Submode
-                <select id="submodeSel"><option>universal</option><option>expert</option><option>sales</option></select>
-              </label>
-              <label id="labelTargetPlatform">Target platform
-                <input id="platformSel" value="TikTok" />
-              </label>
-            </div>
-            <label id="labelNiche">Niche<input id="nicheInput" value="expert blog" /></label>
-            <label id="labelAudience">Audience<input id="audInput" value="entrepreneurs 25-40" /></label>
-            <label id="labelTone">Tone<input id="toneInput" value="friendly and confident" /></label>
-            <label id="labelGoal">Goal<input id="goalInput" value="get more leads" /></label>
-            <div class="row gap">
-              <button class="btn" type="submit">Generate</button>
-              <button class="btn ghost" id="ideasBtn" type="button">Suggest Ideas</button>
-              <button class="btn ghost" id="saveScriptBtn" type="button">Save Script</button>
-            </div>
-          </form>
-
-          <h3 id="resultTitle">Result</h3>
-          <pre id="scriptResult" class="output"></pre>
         </section>
       </div>
 

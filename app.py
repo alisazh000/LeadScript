@@ -305,8 +305,8 @@ def create_app() -> Flask:
         model = (body.get("model") or os.getenv("OPENAI_MODEL", "gpt-5.3-codex")).strip()
         reasoning_effort = (body.get("reasoning_effort") or "medium").strip().lower()
         temperature = clamp_float(body.get("temperature"), 0.0, 2.0, 0.7)
-        max_tokens = clamp_int(body.get("max_tokens"), 80, 1500, 350)
-        response_mode = (body.get("response_mode") or "normal").strip()
+        max_tokens = clamp_int(body.get("max_tokens"), 80, 3000, 900)
+        response_mode = (body.get("response_mode") or "deep").strip()
         system_prompt = (body.get("system_prompt") or "").strip()
         memory_enabled = bool(body.get("memory_enabled", True))
         memory_window = clamp_int(body.get("memory_window"), 2, 30, 8)
@@ -776,8 +776,8 @@ def generate_ai_reply(
     model: str = "gpt-5.3-codex",
     reasoning_effort: str = "medium",
     temperature: float = 0.7,
-    max_tokens: int = 350,
-    response_mode: str = "normal",
+    max_tokens: int = 900,
+    response_mode: str = "deep",
     system_prompt: str = "",
     history: list[dict] | None = None,
 ) -> str:
@@ -792,7 +792,10 @@ def generate_ai_reply(
     mode_hints = {
         "concise": "Keep response concise and compact.",
         "normal": "Balance concise advice with enough practical detail.",
-        "deep": "Provide deeper strategic explanation with examples.",
+        "deep": (
+            "Provide a long, structured, practical response with examples, "
+            "clear steps, and at least one ready-to-use script draft."
+        ),
     }
     model_whitelist = {
         "gpt-5.4",
@@ -819,7 +822,7 @@ def generate_ai_reply(
             prompt = (
                 f"{sys_text}\n"
                 "You are an assistant for scriptwriters and content creators. "
-                "Provide practical guidance with actionable bullets.\n"
+                "Provide practical guidance with actionable bullets and useful detail.\n"
                 f"Mode hint: {mode_hints.get(response_mode, mode_hints['normal'])}\n"
                 f"Settings: style={style}, detail={detail}, focus={focus}, creativity={creativity}.\n"
                 f"Recent context:\n{history_text}\n"
@@ -1045,9 +1048,9 @@ def generate_script_with_ai(**kwargs) -> str:
 
             prompt = (
                 "You are a senior practical scriptwriter for ads and social content.\n"
-                "Return only the final script in clear blocks with no meta commentary.\n"
+                "Think like a strategist + copywriter. Return only the final script in clear blocks with no meta commentary.\n"
                 f"Output language: {response_language}.\n"
-                "Make it production-ready and actionable.\n\n"
+                "Make it production-ready, specific, and actionable.\n\n"
                 "INPUT:\n"
                 f"- Idea: {kwargs.get('idea','')}\n"
                 f"- Mode: {kwargs.get('mode','default')}\n"
@@ -1065,11 +1068,12 @@ def generate_script_with_ai(**kwargs) -> str:
                 "5) Shot list (3-6 quick shots)\n"
                 "6) Caption + 6 hashtags\n"
                 "7) 2 alternative hooks\n"
+                "8) Optional long-form version (45-60 sec)\n"
             )
             resp = client.responses.create(
                 model=selected_model,
                 input=prompt,
-                max_output_tokens=1000,
+                max_output_tokens=1600,
                 reasoning={"effort": reasoning_effort},
             )
             if hasattr(resp, "output_text") and resp.output_text:
