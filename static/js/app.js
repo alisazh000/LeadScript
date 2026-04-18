@@ -226,7 +226,7 @@ function readAiSettingsFromUI() {
     reasoning_effort: $("reasonEffortSel").value,
     response_mode: $("respModeSel").value,
     temperature: clampNum($("tempInp").value, 0, 2, 0.7),
-    max_tokens: Math.round(clampNum($("maxTokInp").value, 80, 1500, 350)),
+    max_tokens: Math.round(clampNum($("maxTokInp").value, 80, 3000, 900)),
     memory_enabled: $("memoryChk").checked,
     memory_window: Math.round(clampNum($("memoryWinInp").value, 2, 30, 8)),
     system_prompt: $("sysPromptInp").value.trim(),
