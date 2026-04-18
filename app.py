@@ -303,6 +303,7 @@ def create_app() -> Flask:
         focus = body.get("focus") or "content"
         creativity = body.get("creativity") or "medium"
         model = (body.get("model") or os.getenv("OPENAI_MODEL", "gpt-5.3-codex")).strip()
+        reasoning_effort = (body.get("reasoning_effort") or "medium").strip().lower()
         temperature = clamp_float(body.get("temperature"), 0.0, 2.0, 0.7)
         max_tokens = clamp_int(body.get("max_tokens"), 80, 1500, 350)
         response_mode = (body.get("response_mode") or "normal").strip()
@@ -330,6 +331,7 @@ def create_app() -> Flask:
             focus=focus,
             creativity=creativity,
             model=model,
+            reasoning_effort=reasoning_effort,
             temperature=temperature,
             max_tokens=max_tokens,
             response_mode=response_mode,
@@ -365,7 +367,7 @@ def create_app() -> Flask:
         if not idea:
             return jsonify({"error": "Idea is required"}), 400
 
-        script = generate_script_text(
+        script = generate_script_with_ai(
             idea=idea,
             mode=mode,
             submode=submode,
@@ -772,6 +774,7 @@ def generate_ai_reply(
     focus: str,
     creativity: str,
     model: str = "gpt-5.3-codex",
+    reasoning_effort: str = "medium",
     temperature: float = 0.7,
     max_tokens: int = 350,
     response_mode: str = "normal",
@@ -792,14 +795,19 @@ def generate_ai_reply(
         "deep": "Provide deeper strategic explanation with examples.",
     }
     model_whitelist = {
+        "gpt-5.4",
+        "gpt-5.2-codex",
+        "gpt-5.1-codex-max",
+        "gpt-5.4-mini",
         "gpt-5.3-codex",
-        "gpt-4.1-mini",
-        "gpt-4.1",
-        "gpt-4o-mini",
-        "gpt-4o",
+        "gpt-5.2",
+        "gpt-5.1-codex-mini",
     }
     if selected_model not in model_whitelist:
         selected_model = os.getenv("OPENAI_MODEL", "gpt-5.3-codex")
+    effort_whitelist = {"low", "medium", "high", "xhigh"}
+    if reasoning_effort not in effort_whitelist:
+        reasoning_effort = "medium"
 
     if api_key and OpenAI is not None:
         try:
@@ -817,12 +825,22 @@ def generate_ai_reply(
                 f"Recent context:\n{history_text}\n"
                 f"User request: {text}\n"
             )
-            resp = client.responses.create(
-                model=selected_model,
-                input=prompt,
-                temperature=temperature,
-                max_output_tokens=max_tokens,
-            )
+            try:
+                resp = client.responses.create(
+                    model=selected_model,
+                    input=prompt,
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                    reasoning={"effort": reasoning_effort},
+                )
+            except Exception:
+                # Compatibility fallback for models/endpoints that do not accept reasoning options.
+                resp = client.responses.create(
+                    model=selected_model,
+                    input=prompt,
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                )
             if hasattr(resp, "output_text") and resp.output_text:
                 return resp.output_text.strip()
         except Exception:
@@ -838,7 +856,7 @@ def generate_ai_reply(
     return (
         f"AliceAI quick guidance for: \"{text}\"\n"
         f"Settings: style={style}, detail={detail}, focus={focus}, creativity={creativity}, "
-        f"model={selected_model}, temperature={temperature}, max_tokens={max_tokens}, mode={response_mode}.\n\n"
+        f"model={selected_model}, reasoning={reasoning_effort}, temperature={temperature}, max_tokens={max_tokens}, mode={response_mode}.\n\n"
         + "\n".join(f"{i+1}. {t}" for i, t in enumerate(tips))
         + f"\n\nRef: {hash_short(text + style + detail + focus + creativity)}"
     )
@@ -1003,6 +1021,63 @@ def generate_script_text(**kwargs) -> str:
         f"Idea: {idea}\nNiche: {niche}\nAudience: {audience}\nTone: {tone}\nGoal: {goal}\nPlatform: {platform}\n\n"
         + body_en
     )
+
+
+def generate_script_with_ai(**kwargs) -> str:
+    """
+    Practical script generator powered by OpenAI when API key is configured.
+    Falls back to deterministic local template if API is unavailable.
+    """
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    selected_model = os.getenv("OPENAI_MODEL", "gpt-5.3-codex").strip() or "gpt-5.3-codex"
+    reasoning_effort = os.getenv("OPENAI_REASONING_EFFORT", "medium").strip().lower() or "medium"
+    if reasoning_effort not in {"low", "medium", "high", "xhigh"}:
+        reasoning_effort = "medium"
+
+    if api_key and OpenAI is not None:
+        try:
+            client = OpenAI(api_key=api_key)
+            language = (kwargs.get("language") or "en").lower()
+            if language == "ru":
+                response_language = "Russian"
+            else:
+                response_language = "English"
+
+            prompt = (
+                "You are a senior practical scriptwriter for ads and social content.\n"
+                "Return only the final script in clear blocks with no meta commentary.\n"
+                f"Output language: {response_language}.\n"
+                "Make it production-ready and actionable.\n\n"
+                "INPUT:\n"
+                f"- Idea: {kwargs.get('idea','')}\n"
+                f"- Mode: {kwargs.get('mode','default')}\n"
+                f"- Submode: {kwargs.get('submode','universal')}\n"
+                f"- Niche: {kwargs.get('niche','')}\n"
+                f"- Audience: {kwargs.get('audience','')}\n"
+                f"- Tone: {kwargs.get('tone','')}\n"
+                f"- Goal: {kwargs.get('goal','')}\n"
+                f"- Platform: {kwargs.get('platform','generic')}\n\n"
+                "FORMAT:\n"
+                "1) Hook (0-2 sec)\n"
+                "2) Main message (3-20 sec)\n"
+                "3) Social proof / credibility\n"
+                "4) CTA\n"
+                "5) Shot list (3-6 quick shots)\n"
+                "6) Caption + 6 hashtags\n"
+                "7) 2 alternative hooks\n"
+            )
+            resp = client.responses.create(
+                model=selected_model,
+                input=prompt,
+                max_output_tokens=1000,
+                reasoning={"effort": reasoning_effort},
+            )
+            if hasattr(resp, "output_text") and resp.output_text:
+                return resp.output_text.strip()
+        except Exception:
+            pass
+
+    return generate_script_text(**kwargs)
 
 
 def suggest_idea_list(niche: str, audience: str, language: str, direction: str = "default") -> list[str]:

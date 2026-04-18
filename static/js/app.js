@@ -8,6 +8,7 @@
   activeScriptId: null,
   aiSettings: {
     model: "gpt-5.3-codex",
+    reasoning_effort: "medium",
     response_mode: "normal",
     temperature: 0.7,
     max_tokens: 350,
@@ -27,6 +28,7 @@ const i18n = {
     savedScripts: "Saved Scripts",
     workspace: "LeadScript Workspace",
     autosave: "Autosave on",
+    aiTitle: "AliceAI Assistant",
     downloadWin: "Download Windows App",
     logout: "Logout",
     aiSub: "Built-in AI assistant",
@@ -41,6 +43,57 @@ const i18n = {
     qaTitle: "Script QA and Budget",
     runAnalysis: "Run Analysis",
     export: "Export Selected Script",
+    beforePublishing: "Before publishing",
+    onboarding1: "Create your first project.",
+    onboarding2: "Generate a script and save version history.",
+    onboarding3: "Run platform QA and budget estimate.",
+    gotIt: "Got it",
+    style: "Style",
+    detail: "Detail",
+    focus: "Focus",
+    creativity: "Creativity",
+    aliceSettings: "AliceAI Settings (ChatGPT-style)",
+    model: "Model",
+    reasoningEffort: "Reasoning Effort",
+    responseMode: "Response Mode",
+    temperature: "Temperature",
+    maxTokens: "Max Tokens",
+    memoryOn: "Memory On",
+    memoryWindow: "Memory Window (messages)",
+    systemInstruction: "System Instruction",
+    scriptGenerator: "Script Generator",
+    idea: "Idea",
+    language: "Language",
+    mode: "Mode",
+    submode: "Submode",
+    targetPlatform: "Target platform",
+    niche: "Niche",
+    audience: "Audience",
+    tone: "Tone",
+    goal: "Goal",
+    analysis: "Analysis",
+    platform: "Platform",
+    budgetLevel: "Budget level",
+    region: "Region",
+    exportFormat: "Export format",
+    scriptText: "Script text",
+    welcome: "Welcome to LeadScript",
+    welcomeSub: "Sign in to keep chats and scripts in secure cloud storage.",
+    login: "Login",
+    register: "Register",
+    searchPrompt: "Search project title:",
+    notFound: "Not found",
+    noProjects: "No projects yet.",
+    noScripts: "No saved scripts.",
+    savePlanPrompt: "Build a 7-day content plan",
+    namePlaceholder: "Name",
+    emailPlaceholder: "Email",
+    passwordPlaceholder: "Password (min 8)",
+    askPlaceholder: "Ask AliceAI...",
+    ideaPlaceholder: "e.g. ad concept for coffee app",
+    systemPlaceholder: "You are AliceAI. Be practical and concise.",
+    skillsAlert: "Skills hub will be connected to plugins marketplace.",
+    automationsAlert: "Automations: schedule script reviews and weekly idea packs.",
   },
   ru: {
     newConversation: "Новая беседа",
@@ -51,6 +104,7 @@ const i18n = {
     savedScripts: "Сохраненные сценарии",
     workspace: "Рабочее пространство LeadScript",
     autosave: "Автосохранение включено",
+    aiTitle: "Ассистент AliceAI",
     downloadWin: "Скачать Windows приложение",
     logout: "Выйти",
     aiSub: "Встроенный AI ассистент",
@@ -65,6 +119,57 @@ const i18n = {
     qaTitle: "Проверка сценария и бюджет",
     runAnalysis: "Запустить анализ",
     export: "Экспорт выбранного сценария",
+    beforePublishing: "Перед публикацией",
+    onboarding1: "Создай первый проект.",
+    onboarding2: "Сгенерируй сценарий и сохрани версии.",
+    onboarding3: "Запусти проверку платформы и расчет бюджета.",
+    gotIt: "Понятно",
+    style: "Стиль",
+    detail: "Детализация",
+    focus: "Фокус",
+    creativity: "Креативность",
+    aliceSettings: "Настройки AliceAI (в стиле ChatGPT)",
+    model: "Модель",
+    reasoningEffort: "Уровень рассуждения",
+    responseMode: "Режим ответа",
+    temperature: "Температура",
+    maxTokens: "Макс. токены",
+    memoryOn: "Память включена",
+    memoryWindow: "Окно памяти (сообщения)",
+    systemInstruction: "Системная инструкция",
+    scriptGenerator: "Генератор сценариев",
+    idea: "Идея",
+    language: "Язык",
+    mode: "Режим",
+    submode: "Подрежим",
+    targetPlatform: "Целевая платформа",
+    niche: "Ниша",
+    audience: "Аудитория",
+    tone: "Тон",
+    goal: "Цель",
+    analysis: "Анализ",
+    platform: "Платформа",
+    budgetLevel: "Уровень бюджета",
+    region: "Регион",
+    exportFormat: "Формат экспорта",
+    scriptText: "Текст сценария",
+    welcome: "Добро пожаловать в LeadScript",
+    welcomeSub: "Войди, чтобы хранить чаты и сценарии в защищенном облаке.",
+    login: "Войти",
+    register: "Регистрация",
+    searchPrompt: "Поиск по названию проекта:",
+    notFound: "Не найдено",
+    noProjects: "Пока нет проектов.",
+    noScripts: "Нет сохраненных сценариев.",
+    savePlanPrompt: "Сделай полный план контента на 7 дней",
+    namePlaceholder: "Имя",
+    emailPlaceholder: "Email",
+    passwordPlaceholder: "Пароль (минимум 8)",
+    askPlaceholder: "Спроси AliceAI...",
+    ideaPlaceholder: "например: идея рекламы приложения для кофе",
+    systemPlaceholder: "Ты AliceAI. Давай практичные и короткие ответы.",
+    skillsAlert: "Раздел навыков будет подключен к маркетплейсу плагинов.",
+    automationsAlert: "Автоматизации: настройка проверки сценариев и еженедельных пакетов идей.",
   },
 };
 
@@ -84,12 +189,24 @@ function saveAiSettings() {
 }
 
 function syncAiSettingsToUI() {
-  const onlyModel = "gpt-5.3-codex";
-  if (state.aiSettings.model !== onlyModel) {
-    state.aiSettings.model = onlyModel;
-    saveAiSettings();
+  const modelOptions = new Set([
+    "gpt-5.4",
+    "gpt-5.2-codex",
+    "gpt-5.1-codex-max",
+    "gpt-5.4-mini",
+    "gpt-5.3-codex",
+    "gpt-5.2",
+    "gpt-5.1-codex-mini",
+  ]);
+  if (!modelOptions.has(state.aiSettings.model)) {
+    state.aiSettings.model = "gpt-5.3-codex";
   }
-  $("modelSel").value = onlyModel;
+  const effortOptions = new Set(["low", "medium", "high", "xhigh"]);
+  if (!effortOptions.has(state.aiSettings.reasoning_effort)) {
+    state.aiSettings.reasoning_effort = "medium";
+  }
+  $("modelSel").value = state.aiSettings.model;
+  $("reasonEffortSel").value = state.aiSettings.reasoning_effort;
   $("respModeSel").value = state.aiSettings.response_mode;
   $("tempInp").value = String(state.aiSettings.temperature);
   $("maxTokInp").value = String(state.aiSettings.max_tokens);
@@ -106,6 +223,7 @@ function readAiSettingsFromUI() {
   };
   state.aiSettings = {
     model: $("modelSel").value,
+    reasoning_effort: $("reasonEffortSel").value,
     response_mode: $("respModeSel").value,
     temperature: clampNum($("tempInp").value, 0, 2, 0.7),
     max_tokens: Math.round(clampNum($("maxTokInp").value, 80, 1500, 350)),
@@ -145,26 +263,113 @@ function setLang(lang) {
   $("searchBtn").textContent = t.search;
   $("skillsBtn").textContent = t.skills;
   $("autoBtn").textContent = t.automations;
-  document.querySelectorAll(".section-title")[0].textContent = t.projects;
-  document.querySelectorAll(".section-title")[1].textContent = t.savedScripts;
+  $("projectsTitle").textContent = t.projects;
+  $("savedScriptsTitle").textContent = t.savedScripts;
   $("projectTitle").textContent = t.workspace;
   $("autosaveBadge").textContent = t.autosave;
   $("downloadWinBtn").textContent = t.downloadWin;
   $("logoutBtn").textContent = t.logout;
-  document.querySelector("section.panel h2").textContent = "AliceAI";
-  document.querySelector("section.panel .sub").textContent = t.aiSub;
+  const privacyLink = document.querySelector('a[href="/privacy"]');
+  if (privacyLink) privacyLink.textContent = lang === "ru" ? "Политика" : "Privacy";
+  const termsLink = document.querySelector('a[href="/terms"]');
+  if (termsLink) termsLink.textContent = lang === "ru" ? "Условия" : "Terms";
+  $("aliceTitle").textContent = t.aiTitle;
+  $("aliceSub").textContent = t.aiSub;
   $("sendBtn").textContent = t.send;
   $("saveChatBtn").textContent = t.saveChat;
   $("guestBtn").textContent = t.guest;
-  document.querySelectorAll("section.panel h2")[1].textContent = "Script Generator";
-  document.querySelectorAll("section.panel .sub")[1].textContent = t.generatorSub;
+  $("generatorTitle").textContent = t.scriptGenerator;
+  $("generatorSub").textContent = t.generatorSub;
   document.querySelector("#generateForm button[type='submit']").textContent = t.generate;
   $("ideasBtn").textContent = t.suggest;
   $("saveScriptBtn").textContent = t.saveScript;
-  document.querySelector("#generateForm").parentElement.querySelector("h3").textContent = t.result;
-  $("qaForm").parentElement.querySelector("h2").textContent = t.qaTitle;
+  $("resultTitle").textContent = t.result;
+  $("qaTitleHeading").textContent = t.qaTitle;
   $("qaForm button[type='submit']").textContent = t.runAnalysis;
   $("exportBtn").textContent = t.export;
+  $("onboardingTitle").textContent = t.beforePublishing;
+  $("onboardingStep1").textContent = t.onboarding1;
+  $("onboardingStep2").textContent = t.onboarding2;
+  $("onboardingStep3").textContent = t.onboarding3;
+  $("closeOnboarding").textContent = t.gotIt;
+  $("labelStyle").childNodes[0].textContent = `${t.style}\n              `;
+  $("labelDetail").childNodes[0].textContent = `${t.detail}\n              `;
+  $("labelFocus").childNodes[0].textContent = `${t.focus}\n              `;
+  $("labelCreativity").childNodes[0].textContent = `${t.creativity}\n              `;
+  $("aiSettingsSummary").textContent = t.aliceSettings;
+  $("labelModel").childNodes[0].textContent = `${t.model}\n                `;
+  $("labelReasoningEffort").childNodes[0].textContent = `${t.reasoningEffort}\n                `;
+  $("labelResponseMode").childNodes[0].textContent = `${t.responseMode}\n                `;
+  $("labelTemperature").childNodes[0].textContent = `${t.temperature}\n                `;
+  $("labelMaxTokens").childNodes[0].textContent = `${t.maxTokens}\n                `;
+  $("labelMemoryOn").childNodes[1].textContent = t.memoryOn;
+  $("labelMemoryWindow").childNodes[0].textContent = `${t.memoryWindow}\n                `;
+  $("labelSystemInstruction").childNodes[0].textContent = `${t.systemInstruction}\n                `;
+  $("labelIdea").childNodes[0].textContent = t.idea;
+  $("labelLanguage").childNodes[0].textContent = `${t.language}\n                `;
+  $("labelMode").childNodes[0].textContent = `${t.mode}\n                `;
+  $("labelSubmode").childNodes[0].textContent = `${t.submode}\n                `;
+  $("labelTargetPlatform").childNodes[0].textContent = `${t.targetPlatform}\n                `;
+  $("labelNiche").childNodes[0].textContent = t.niche;
+  $("labelAudience").childNodes[0].textContent = t.audience;
+  $("labelTone").childNodes[0].textContent = t.tone;
+  $("labelGoal").childNodes[0].textContent = t.goal;
+  $("labelAnalysis").childNodes[0].textContent = `${t.analysis}\n              `;
+  $("labelPlatform").childNodes[0].textContent = `${t.platform}\n              `;
+  $("labelBudgetLevel").childNodes[0].textContent = `${t.budgetLevel}\n              `;
+  $("labelRegion").childNodes[0].textContent = `${t.region}\n              `;
+  $("labelExportFormat").childNodes[0].textContent = `${t.exportFormat}\n              `;
+  $("labelScriptText").childNodes[0].textContent = t.scriptText;
+  $("welcomeTitle").textContent = t.welcome;
+  $("welcomeSub").textContent = t.welcomeSub;
+  $("loginBtn").textContent = t.login;
+  $("registerBtn").textContent = t.register;
+  $("nameField").placeholder = t.namePlaceholder;
+  $("emailField").placeholder = t.emailPlaceholder;
+  $("passwordField").placeholder = t.passwordPlaceholder;
+  $("chatInput").placeholder = t.askPlaceholder;
+  $("ideaInput").placeholder = t.ideaPlaceholder;
+  $("sysPromptInp").placeholder = t.systemPlaceholder;
+  const analysisSel = $("analysisType");
+  if (analysisSel?.options?.length >= 2) {
+    analysisSel.options[0].text = lang === "ru" ? "Проверка платформы" : "Platform compliance";
+    analysisSel.options[1].text = lang === "ru" ? "Бюджет сцен" : "Scene budget";
+  }
+  const budgetSel = $("budgetLevel");
+  if (budgetSel?.options?.length >= 3) {
+    budgetSel.options[0].text = lang === "ru" ? "низкий" : "low";
+    budgetSel.options[1].text = lang === "ru" ? "средний" : "mid";
+    budgetSel.options[2].text = lang === "ru" ? "высокий" : "high";
+  }
+  const responseModeSel = $("respModeSel");
+  if (responseModeSel?.options?.length >= 3) {
+    responseModeSel.options[0].text = lang === "ru" ? "кратко" : "concise";
+    responseModeSel.options[1].text = lang === "ru" ? "нормально" : "normal";
+    responseModeSel.options[2].text = lang === "ru" ? "глубоко" : "deep";
+  }
+  const effortSel = $("reasonEffortSel");
+  if (effortSel?.options?.length >= 4) {
+    effortSel.options[0].text = lang === "ru" ? "Низкий" : "low";
+    effortSel.options[1].text = lang === "ru" ? "Средний" : "medium";
+    effortSel.options[2].text = lang === "ru" ? "Высокий" : "high";
+    effortSel.options[3].text = lang === "ru" ? "Очень высокий" : "xhigh";
+  }
+  const modeSel = $("modeSel");
+  if (modeSel?.options?.length >= 7) {
+    modeSel.options[0].text = lang === "ru" ? "по умолчанию" : "default";
+    modeSel.options[1].text = "tiktok";
+    modeSel.options[2].text = lang === "ru" ? "реклама" : "ads";
+    modeSel.options[3].text = lang === "ru" ? "кино" : "film";
+    modeSel.options[4].text = lang === "ru" ? "бизнес" : "business";
+    modeSel.options[5].text = lang === "ru" ? "геймдев" : "gamedev";
+    modeSel.options[6].text = lang === "ru" ? "программирование" : "programming";
+  }
+  const submodeSel = $("submodeSel");
+  if (submodeSel?.options?.length >= 3) {
+    submodeSel.options[0].text = lang === "ru" ? "универсальный" : "universal";
+    submodeSel.options[1].text = lang === "ru" ? "эксперт" : "expert";
+    submodeSel.options[2].text = lang === "ru" ? "продажи" : "sales";
+  }
   $("langBtn").textContent = lang === "en" ? "RU" : "EN";
 }
 
@@ -173,9 +378,10 @@ function openAuthModal(open) {
 }
 
 function setAdminUI(isAdmin) {
+  void isAdmin;
   const panel = $("aiAdvancedPanel");
   if (!panel) return;
-  panel.classList.toggle("hidden", !isAdmin);
+  panel.classList.remove("hidden");
 }
 
 async function loginRegister(mode) {
@@ -273,7 +479,7 @@ function renderProjects() {
   const root = $("projectList");
   root.innerHTML = "";
   if (!state.projects.length) {
-    root.innerHTML = `<div class="item"><div class="meta">No projects yet.</div></div>`;
+    root.innerHTML = `<div class="item"><div class="meta">${i18n[state.lang].noProjects}</div></div>`;
     return;
   }
   state.projects.forEach((p) => {
@@ -335,6 +541,7 @@ async function sendMessage() {
     creativity: $("creativeSel").value,
     model: state.aiSettings.model,
     response_mode: state.aiSettings.response_mode,
+    reasoning_effort: state.aiSettings.reasoning_effort,
     temperature: state.aiSettings.temperature,
     max_tokens: state.aiSettings.max_tokens,
     memory_enabled: state.aiSettings.memory_enabled,
@@ -401,7 +608,7 @@ function renderScripts() {
   const root = $("savedScriptsNav");
   root.innerHTML = "";
   if (!state.scripts.length) {
-    root.innerHTML = `<div class="item"><div class="meta">No saved scripts.</div></div>`;
+    root.innerHTML = `<div class="item"><div class="meta">${i18n[state.lang].noScripts}</div></div>`;
     return;
   }
   state.scripts.forEach((s) => {
@@ -528,7 +735,7 @@ function wireEvents() {
     }
   });
   $("saveChatBtn").onclick = async () => {
-    $("chatInput").value = state.lang === "ru" ? "Сделай полный план контента на 7 дней" : "Build a 7-day content plan";
+    $("chatInput").value = i18n[state.lang].savePlanPrompt;
     await sendMessage();
   };
   $("generateForm").onsubmit = async (e) => {
@@ -551,19 +758,20 @@ function wireEvents() {
   $("languageSel").onchange = () => setLang($("languageSel").value);
   $("closeOnboarding").onclick = () => $("onboarding").classList.add("hidden");
   $("searchBtn").onclick = async () => {
-    const q = prompt("Search project title:");
+    const q = prompt(i18n[state.lang].searchPrompt);
     if (!q) return;
     const found = state.projects.find((p) => p.title.toLowerCase().includes(q.toLowerCase()));
-    if (!found) return alert("Not found");
+    if (!found) return alert(i18n[state.lang].notFound);
     state.activeProjectId = found.id;
     renderProjects();
     await loadProjectChats();
     await loadScripts();
   };
-  $("skillsBtn").onclick = () => alert("Skills hub will be connected to plugins marketplace.");
-  $("autoBtn").onclick = () => alert("Automations: schedule script reviews and weekly idea packs.");
+  $("skillsBtn").onclick = () => alert(i18n[state.lang].skillsAlert);
+  $("autoBtn").onclick = () => alert(i18n[state.lang].automationsAlert);
   [
     "modelSel",
+    "reasonEffortSel",
     "respModeSel",
     "tempInp",
     "maxTokInp",
